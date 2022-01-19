@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KAFKA.CONSUMER.Data\KAFKA.CONSUMER.Data.csproj" />
+    <ProjectReference Include="..\KAFKA.CONSUMER.Dominios\KAFKA.CONSUMER.Dominios.csproj" />
+  </ItemGroup>
+
+</Project>

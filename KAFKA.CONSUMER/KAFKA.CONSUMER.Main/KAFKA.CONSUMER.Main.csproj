@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <StartupObject>KAFKA.CONSUMER.Main.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="1.8.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KAFKA.CONSUMER.Dominios\KAFKA.CONSUMER.Dominios.csproj" />
+    <ProjectReference Include="..\KAFKA.CONSUMER.Ioc\KAFKA.CONSUMER.Ioc.csproj" />
+  </ItemGroup>
+
+</Project>
