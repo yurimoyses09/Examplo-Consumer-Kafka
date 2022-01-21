@@ -16,9 +16,10 @@ namespace KAFKA.CONSUMER.Aplicacao.ComandosSql
         }
         #endregion
 
+        #region Geradores de comandos sql
         public string GeraComandoSqlInsert(DadosKafka dados)
         {
-            string cmd = @$"
+            return string.Format(@"
                         INSERT INTO tb_mensagem_kafka 
                         (
                             mensagem_nome,
@@ -26,11 +27,20 @@ namespace KAFKA.CONSUMER.Aplicacao.ComandosSql
                             mensagem_idade,
                             mensagem_status_civil
                         ) 
-                        VALUES ('{dados.data.nome}', '{dados.data.cpf}', '{dados.data.idade}', {dados.data.status_civil})";
-
-            return cmd;
+                        VALUES (
+                            '{0}', 
+                            '{1}', 
+                            '{2}', 
+                             {3}
+                        )",
+                        dados.data.nome,
+                        dados.data.cpf,
+                        dados.data.idade,
+                        dados.data.status_civil);
         }
+        #endregion
 
+        #region Executa queries
         public int Insert(DadosKafka dadosMensagem)
         {
             int linhasAfetadas = 0;
@@ -59,5 +69,6 @@ namespace KAFKA.CONSUMER.Aplicacao.ComandosSql
 
             return linhasAfetadas;
         }
+        #endregion
     }
 }

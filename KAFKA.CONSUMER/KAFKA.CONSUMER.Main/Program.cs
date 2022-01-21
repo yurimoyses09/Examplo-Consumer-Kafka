@@ -9,11 +9,12 @@ namespace KAFKA.CONSUMER.Main
     class Program
     {
         #region Dados do Consumer
-        private readonly static string _NomeTopico = "testes_topico";
-        private readonly static string _GroupId = "kafka-dotnet-getting-started";
-        private readonly static string _BootstrapServer = "pkc-ymrq7.us-east-2.aws.confluent.cloud:9092";
-        private readonly static string _Usuario = "2JTKE5CLJPKY2RMP";
-        private readonly static string _Senha = "UyQPz/nnAIURcmgw+smAanlcC6EobOSpOUmyLZ7cXZ/vgsIRf8I/8UuvBhlMcqXJ";
+        private readonly static string _NomeTopico = "SEU TOPICO";
+        private readonly static string _GroupId = "SEU GROUPID";
+        private readonly static string _BootstrapServer = "SEU SERVIDOR";
+        private readonly static string _Usuario = "SEU USUARIO";
+        private readonly static string _Senha = "SUA SENHA";
+        private readonly static string _DiretorioCertificado = "DIRETORIO DO CERTIFICADO";
         #endregion
 
         static void Main(string[] args)
@@ -27,7 +28,7 @@ namespace KAFKA.CONSUMER.Main
                 BootstrapServers = _BootstrapServer,
                 AutoOffsetReset = AutoOffsetReset.Earliest,
                 EnableAutoCommit = false,
-                SslCertificateLocation = "C:\\Users\\ADM\\Desktop\\DEV\\Kafka\\CONSUMER\\KAFKA.CONSUMER\\cacert.pem",
+                SslCertificateLocation = _DiretorioCertificado,
                 SaslUsername = _Usuario,
                 SaslPassword = _Senha,
                 SaslMechanism = SaslMechanism.Plain,
@@ -44,49 +45,64 @@ namespace KAFKA.CONSUMER.Main
             };
             #endregion
 
-            using (var consumer = new ConsumerBuilder<string, string>(ConsumerConfiguration).Build())
+            try
             {
-                consumer.Subscribe(_NomeTopico);
-
-                try
+                using (var consumer = new ConsumerBuilder<string, string>(ConsumerConfiguration).Build())
                 {
-                    while (true)
+                    consumer.Subscribe(_NomeTopico);
+
+                    try
                     {
-                        Console.WriteLine("Lendo Fila...");
-
-                        var mensagem = consumer.Consume(cts.Token);
-
-                        // Caso tenha mensagem
-                        if (!mensagem.Message.Equals(null))
+                        while (true)
                         {
-                            Console.WriteLine($"Mensagem encontrada {mensagem.Message.Value}");
-                            try
-                            {
-                                var JsonMensagem = JsonConvert.DeserializeObject<Dominios.DadosKafka>(mensagem.Message.Value);
+                            Console.WriteLine("Lendo Fila...");
 
-                                var RealizaQueryInsert = controleDependencia.Insert(JsonMensagem);
+                            var mensagem = consumer.Consume(cts.Token);
 
-                                if (RealizaQueryInsert > 0)
-                                    consumer.Commit();
-                            }
-                            catch (Exception ex)
+                            // Caso tenha mensagem
+                            if (!mensagem.Message.Equals(null))
                             {
-                                Console.WriteLine(ex.Message);
-                                continue;
+                                Console.WriteLine($"Mensagem encontrada {mensagem.Message.Value}");
+                                try
+                                {
+                                    Console.WriteLine("Deserealizando mensagem");
+                                    var JsonMensagem = JsonConvert.DeserializeObject<Dominios.DadosKafka>(mensagem.Message.Value);
+
+                                    Console.WriteLine("Realizando insert dos dados no sql");
+                                    var RealizaQueryInsert = controleDependencia.Insert(JsonMensagem);
+
+                                    if (RealizaQueryInsert > 0)
+                                    {
+                                        Console.WriteLine("Mensagem gravada no sql com sucesso. Linhas afetadas {0}", RealizaQueryInsert);
+                                        Console.WriteLine("========================================================");
+                                        consumer.Commit();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.Message);
+                                    continue;
+                                }
                             }
                         }
                     }
-                }
-                catch (OperationCanceledException)
-                {
-                    // Ctrl + c foi precionado
-                    return;
-                }
-                finally
-                {
-                    consumer.Close();
+                    catch (OperationCanceledException)
+                    {
+                        // Ctrl + c foi precionado
+                        Console.WriteLine("Operação foi cancelada");
+                        return;
+                    }
+                    finally
+                    {
+                        consumer.Close();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}", ex.Message);
+            }
+
         }
     }
 }
